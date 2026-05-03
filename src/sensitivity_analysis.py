@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from tissue_properties import get_tissue_properties
 
 def sensitivity_analysis(T_surface):
 
@@ -24,39 +25,13 @@ def sensitivity_analysis(T_surface):
 
     z = np.linspace(0, D, Nz)
 
-    # Parameter arrays
+    k_arr, rho_arr, cp_arr, omega_arr, qm_arr = get_tissue_properties(z)
 
-    alpha = np.zeros(Nz)
-    beta = np.zeros(Nz)
-    metabolic = np.zeros(Nz)
+    rhoCp     = rho_arr * cp_arr
+    alpha     = k_arr / rhoCp
+    beta      = (omega_arr * rho_b * c_b) / rhoCp
+    metabolic = qm_arr / rhoCp
 
-
-
-    for i in range(Nz):
-        if z[i] < 0.002:  # skin
-            k = 0.42 # thermal conductivity
-            rho = 1109 # density
-            C_p = 3500 # tissue specific heat
-            omega_b = 0.0022 # blood perfusion rate
-            q_m = 1620 # metabolic heat
-
-        elif z[i] < 0.015:  # fat layer
-            k = 0.25
-            rho = 911
-            C_p = 2500
-            omega_b = 0.00045
-            q_m = 300
-
-        else:  # muscle
-            k = 0.5
-            rho = 1090.4
-            C_p = 3600
-            omega_b = 0.001
-            q_m = 480
-
-        alpha[i] = k / (rho * C_p)
-        beta[i] = (omega_b * rho_b * c_b) / (rho * C_p)
-        metabolic[i] = q_m / (C_p * rho)
 
     #Stability check
 
@@ -81,7 +56,7 @@ def sensitivity_analysis(T_surface):
         # Endpoints (excluded boundaries because the formula requires neighbouring points)
 
         T_new[0] = T_surface # The heat holds the skin at 43
-        T_new[-1] = T_body # Neumann BC: No heat flux out of deep boundary
+        T_new[-1] = T_body
 
         T[:] = T_new[:]
 
@@ -109,9 +84,9 @@ surface_temp = np.linspace(41, 47, 13)
 
 depth_results = [] # treatable depth for each heat temp
 
-for i in surface_temp:
+for T_s in surface_temp:
 
-    depth = sensitivity_analysis(i)
+    depth = sensitivity_analysis(T_s)
 
     depth_results.append(depth)
 

@@ -1,52 +1,52 @@
 # Hyperthermic Cancer Treatment Simulation
-*Academic project | University of Leeds | Python | 2026*
+*Academic Project | University of Leeds | Python | 2026*
 
 ## Overview
 
-Computational simulation of tissue heat diffusion for superficial hyperthermia, a cancer treatment technique that applies localised heat to damage tumour cells while preserving surrounding healthy tissue.
+Computational simulation of tissue heat diffusion for **superficial hyperthermia**, a cancer treatment technique that applies localised heat to damage tumour cells while preserving surrounding healthy tissue.
 
-## Methods
+Two models are implemented, leading up to in a SAR + water-bolus cooling model with full multi-parameter treatment planning analysis.
 
-The model is based on the **Pennes Bioheat Equation**:
-**Pennes Bioheat Equation** : heat diffusion + blood perfusion cooling + metabolic heat + external applicator heat
+## Equation
 
-Solved numerically using the **FTCS finite difference scheme** across a three-layer tissue model (skin / fat / muscle) with literature-sourced physiological parameters.
+The models are based on the **Pennes Bioheat Equation**:
+$$\rho c \frac{\partial T}{\partial t} = \frac{\partial}{\partial z}\left(k \frac{\partial T}{\partial z}\right) + \rho_b c_b \omega(T_b - T) + Q_{\text{met}} + Q_{\text{SAR}}(z)$$
 
 
-## Key Parameters
+## Numerical Method
 
-| Parameter | Value |
-|---|---|
-| Skin thermal conductivity | 0.42 W/(m·K) |
-| Fat perfusion rate | 0.00045 1/s |
-| Therapeutic threshold | ≥ 40°C |
-| Treatment duration | 60 min |
-| Water bolus heat transfer coefficient | 100 W/(m²·K) |
+**Scheme:** Explicit FTCS (Forward-Time Centred-Space) finite difference
 
-## Results
+---
 
-### Model 1 — Surface Heating (43°C)
-Treatable depth: **~8 mm** (limited to fat layer)
+### Model 1: Surface Heating ( 43°C )
+
+**Result:** Treatable depth of *~8 mm*, limited to the fat layer.
 
 ![Surface Heating](outputs/surface_heating_final_temp.png)
 
-### Model 2 — SAR + Water-Bolus Cooling
-A more clinically realistic model replacing the fixed surface boundary with a Robin condition (ghost-node scheme) to represent water-bolus cooling, combined with a volumetric SAR heat source across tissue layers.
-
-Treatable depth: **~30 mm** — reaching deep into muscle tissue
-
-> Multi-parameter treatment planning analysis (SAR intensity, bolus temperature, heat transfer coefficient) is in progress.
-
-![SAR + Bolus Cooling](outputs/sar_bolus_final_temp.png)
+---
 
 ### Sensitivity Analysis
-Treatable depth as a function of surface applicator temperature (41°C–47°C):
 
-![Sensitivity](outputs/sensitivity_treatable_depth.png)
+Treatable depth as a function of surface applicator temperature (41°C – 47°C):
 
-Surface temperature has a near-linear effect on treatable depth in the clinically safe range, providing a practical control parameter for treatment planning.
+![Sensitivity Analysis](outputs/sensitivity_treatable_depth.png)
+
+---
+
+### Model 2: SAR + Water-Bolus Cooling
+A clinically realistic model replacing the fixed-temperature surface BC with a Robin (convective) boundary condition representing water-bolus cooling, combined with a **volumetric SAR heat source**.
 
 
-## My Contribution
+### SAR Heating Profile
 
-Individual simulation implementation and numerical analysis within a group research project. Responsible for both Python models, parametric sensitivity sweep, and all visualisations.
+Exponential energy deposition with controllable penetration depth $\delta$:
+
+$$Q_{\text{SAR}}(z) = Q_0 \times SAR_{multiplier} \times e^{-z/\delta}$$
+
+### Parameter Space Exploration
+
+A 10×10 grid sweep over SAR multiplier (0.5×–2.0×) and penetration depth (3–20 mm) at fixed bolus temperature 41°C:
+
+![SAR + Bolus Cooling](outputs/treatable_depth_map.png)
