@@ -10,6 +10,7 @@ Two models are implemented, leading up to in a SAR + water-bolus cooling model w
 ## Equation
 
 The models are based on the **Pennes Bioheat Equation**:
+
 $$\rho c \frac{\partial T}{\partial t} = \frac{\partial}{\partial z}\left(k \frac{\partial T}{\partial z}\right) + \rho_b c_b \omega(T_b - T) + Q_{\text{met}} + Q_{\text{SAR}}(z)$$
 
 
